@@ -28,18 +28,25 @@ app.use("/api/v1/order", orderRouter);
 app.use(notFound);
 app.use(errorHandler);
 
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
+const connectDB = async () => {
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("❌ MONGO_URI tidak ditemukan di environment variables.");
+    }
+
+    await mongoose.connect(process.env.MONGO_URI); // Hapus opsi deprecated
     console.log("✅ Database connected");
-    app.listen(port, () => {
-      console.log(`🚀 Aplikasi berjalan di port: ${port}`);
-    });
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error("❌ Error connecting to database:", err.message);
     process.exit(1);
+  }
+};
+
+const startServer = () => {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`🚀 Aplikasi berjalan di port: ${port}`);
   });
+};
+
+connectDB().then(startServer);
