@@ -35,7 +35,12 @@ const connectDB = async () => {
     if (!process.env.MONGO_URI) {
       throw new Error("❌ MONGO_URI tidak ditemukan di environment variables.");
     }
-    await mongoose.connect(process.env.MONGO_URI);
+
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // Tunggu max 5 detik sebelum error
+      socketTimeoutMS: 45000, // Koneksi timeout setelah 45 detik
+    });
+
     console.log("✅ Database connected");
   } catch (err) {
     console.error("❌ Error connecting to database:", err.message);
